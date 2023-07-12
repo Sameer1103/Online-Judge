@@ -1,12 +1,20 @@
 import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react'
+import { saveProfileInfo } from '../../service/api';
 
 const Signup = ({handleClose}) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmpassword, setConfirmPassword] = useState("");
 
-    const handleSubmit = ()=>{}
+    const handleSubmit = async()=>{
+        const data = {
+            email: email,
+            password: password,
+        };
+        const response = await saveProfileInfo(data);
+        console.log(response);
+    }
 
   return (
     <Box p={3} style={{display: "flex", flexDirection: "column", gap: "20px"}}>
