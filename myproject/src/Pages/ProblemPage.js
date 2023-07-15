@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { compileTheCode } from '../service/api';
 
 const container = css`
   display: flex;
@@ -11,24 +12,78 @@ const container = css`
 `
 const description = css`
   width: 50%;
-  @media(max-width: 992px){
-    width: 100%;
-  }
   display: flex;
   flex-direction: column;
   align-items: left;
   margin-top: 0%;
   margin-left: 1%;
   border-right: 2px solid grey;
+  @media(max-width: 992px){
+    width: 100%;
+    margin-left: 2 %;
+  }
 `
 const compiler = css`
   margin-left: 1%;
   margin-top: 1%;
 `
+const runbtn = css`
+  border: none;
+  border-radius: 8px;
+  padding: 10px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 24px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  background-color: white;
+  color: black;
+  border: 2px solid #555555;
+  &:hover {
+    background-color: #555555;
+    color: white;
+  }
+`
+const submitbtn = css`
+  background-color: #4CAF50;
+  border: 1px solid green;
+  border-radius: 8px;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: #3e8e41;
+  }
+`
 
 const ProblemPage = () => {
   const { id } = useParams();
+  const [code, setCode] = useState("");
+  const [output, setOutput] = useState("");
   var diffcolor;
+
+  const handleClick = async() => {
+    const data = {
+      language: "cpp",
+      code: code,
+      inputs : [10,20],
+    };
+    const response = await compileTheCode(data);
+    if(response.success === false) alert(response.error);
+    else{
+      setOutput(response.output);
+    }
+  };
+
+  const handleSubmit = async() => {
+
+  };
 
   var problem = {
     title: "Longest Common Prefix",
@@ -75,7 +130,7 @@ const ProblemPage = () => {
       </div>
 
       <div className={compiler}>
-        <textarea rows='30' cols='90' style={{ marginBottom: 20 }}></textarea>
+        <textarea rows='30' cols='90' style={{ marginBottom: 20 }} onChange={(e)=>setCode(e.target.value)}></textarea>
         <div style={{ display: 'flex' }}>
           <div style={{ width: '60%' }}>
             <div style={{ display: 'flex' }}>
@@ -84,13 +139,13 @@ const ProblemPage = () => {
             </div>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Output:</h3>
-              <p style={{ marginLeft: '2%' }}>output</p>
+              <p style={{ marginLeft: '2%' }}>{output}</p>
             </div>
           </div>
           <div>
             <div style={{ display: 'flex' }}>
-              <button>Run</button>
-              <button>Submit</button>
+              <button className={runbtn} onClick={handleClick}>Run</button>
+              <button className={submitbtn} onClick={handleSubmit}>Submit</button>
             </div>
           </div>
         </div>

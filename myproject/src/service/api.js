@@ -8,6 +8,17 @@ export const saveProfileInfo = async (data) => {
         return response.data;
     }
     catch (error) {
-        console.log("Error in calling API", error.message);
+        console.log("Error in calling singup API", error.message);
+    }
+};
+
+export const compileTheCode = async (data) => {
+    try{
+        const response = await axios.post(`${API_URI}/run`, data);
+        return response.data;
+    }
+    catch(error){
+        console.log("Error in calling run API", error.message);
+        return {success: true, output: "Error!"};
     }
 };
