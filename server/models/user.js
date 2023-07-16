@@ -18,7 +18,17 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    solutions: [
+        {
+            problem_id: {
+                type: String
+            },
+            solution: {
+                type: String
+            }
+        }
+    ]
 });
 
 const User = mongoose.model('User', userSchema);

@@ -36,21 +36,38 @@ router.post('/signup', (req, res) => {
         });
 });
 
-router.post("/run", async(req,res)=>{
-    const {language='cpp', code, inputs} = req.body;
-    if(code === "")
-    {
-        return res.json({success: false, error: "Empty code body!"});
+router.post("/run", async (req, res) => {
+    const { language = 'cpp', code, inputs } = req.body;
+    if (code === "") {
+        return res.json({ success: false, error: "Empty code body!" });
     }
-    try{
-        const filePath = await generateFile(language,code);
-        const output = await executeFile(filePath,inputs);
-        console.log({filePath,output});
-        return res.json({output: output, success: true});
+    try {
+        const filePath = await generateFile(language, code);
+        const output = await executeFile(filePath, inputs);
+        console.log({ filePath, output });
+        return res.json({ output: output, success: true });
     }
-    catch(error){
+    catch (error) {
         return res.status(500).json({ success: false, error: error.message });
     }
+});
+
+router.post("/fetchdata", async (req, res) => {
+    const data = req.body;
+    User.findOne({ email: data.email })
+        .exec()
+        .then(existingUser => {
+            if (existingUser) {
+                return res.json(existingUser.solutions);
+            } else {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+        })
+        .catch(err => {
+            console.error('Error while fetching data from the database1:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        });
 });
 
 export default router;

@@ -1,10 +1,12 @@
 import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react'
 import { saveProfileInfo } from '../../service/api';
+import { UserState } from '../../Context';
 
 const Login = ({ handleClose }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const {setUserEmail} = UserState();
 
     var validateEmail = function (email) {
         var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -18,8 +20,10 @@ const Login = ({ handleClose }) => {
                 password: password,
             };
             const response = await saveProfileInfo(data);
-            if(response.exists)
+            if(response.exists){
                 alert("Welcome "+ email);
+                setUserEmail(email);
+            }
             else alert("Invalid email-Id and/or password");
         }
         else {

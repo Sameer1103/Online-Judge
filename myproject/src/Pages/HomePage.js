@@ -1,7 +1,9 @@
 import { css } from '@emotion/css';
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { UserState } from '../Context';
+import { fetchSolArray } from '../service/api';
 
 const rowclass = css`
   &:hover {
@@ -11,12 +13,12 @@ const rowclass = css`
   font-family: Montserrat;
 `
 var problems = [{
-  _id: 4,
+  _id: "4",
   title: "Prob 1",
   difficulty: "Easy",
 },
 {
-  _id: 7,
+  _id: "7",
   title: "Prob 2",
   difficulty: "Medium",
 }
@@ -25,8 +27,12 @@ var problems = [{
 const HomePage = () => {
 
   const [search, setSearch] = useState("");
+  const [solutionsArr, setSolutionsArr] = useState([]);
+  const {useremail} = UserState();
 
   const navigate = useNavigate();
+  var solved = false;
+  var mystatus;
 
   const handleSearch = () => {
     return problems.filter((problem) => (
@@ -34,6 +40,21 @@ const HomePage = () => {
     ));
   }
 
+  const findArray = async(useremail) => {
+    const data = {
+      email: useremail
+    };
+    return await fetchSolArray(data);
+  }
+
+  useEffect(()=>{
+    const fetchData = async () => {
+      const solutions = await findArray(useremail);
+      setSolutionsArr(solutions);
+    };
+    fetchData();
+  },[useremail]);
+  console.log(solutionsArr);
 
   return (
     <Container style={{ textAlign: "center" }}>
@@ -62,8 +83,10 @@ const HomePage = () => {
 
           <TableBody>
             {handleSearch().map((row) => {
+              if(solutionsArr !== undefined) solved = solutionsArr.some(obj => obj.problem_id === row._id);
+              mystatus = solved ? 'Solved' : 'Unsolved';
               return (
-                <TableRow onClick={() => navigate(`/problems/${row.id}`)}
+                <TableRow onClick={() => navigate(`/problems/${row._id}`)}
                   className={rowclass}
                   key={row.title}
                 >
@@ -81,7 +104,7 @@ const HomePage = () => {
                     {row.difficulty}
                   </TableCell>
                   <TableCell align="right">
-                    This{/* Solved if user has done else Unsolved */}
+                    {mystatus}
                   </TableCell>
                 </TableRow>
               );
