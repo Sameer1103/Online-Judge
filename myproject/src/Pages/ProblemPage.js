@@ -77,7 +77,8 @@ const ProblemPage = () => {
     const response = await compileTheCode(data);
     if(response.success === false) alert(response.error);
     else{
-      setOutput(response.output);
+      const formattedOutput = response.output.replace(/\r\n/g, '<br>');
+      setOutput(formattedOutput);
     }
   };
 
@@ -98,6 +99,8 @@ const ProblemPage = () => {
       '        }',
       '    return prefix;',
       '}'],
+      input_format: "This is my input format",
+      output_format: "This is my output format",
     discription: {
       statement: 'Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string "".',
       constraints: ["1 <= strs.length <= 200", "0 <= strs[i].length <= 200", "strs[i] consists of only lowercase English letters."],
@@ -115,6 +118,10 @@ const ProblemPage = () => {
         <h2>{problem.title}</h2>
         <h4 style={{ marginTop: 1, color: `${diffcolor}` }}>{problem.difficulty}</h4>
         <p style={{ fontFamily: "Montserrat", fontSize: 19 }}>{problem.discription.statement}</p>
+        <h3 style={{ fontFamily: "Montserrat" }}>Input Format:</h3>
+        <p style={{ marginTop: 1 }}>{problem.input_format}</p>
+        <h3 style={{ fontFamily: "Montserrat" }}>Output Format:</h3>
+        <p style={{ marginTop: 1 }}>{problem.output_format}</p>
         {problem.discription.sampleio.map((samplearray, index) => {
           return (
             <>
@@ -139,7 +146,7 @@ const ProblemPage = () => {
             </div>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Output:</h3>
-              <p style={{ marginLeft: '2%' }}>{output}</p>
+              <p style={{ marginLeft: '2%' }} dangerouslySetInnerHTML={{ __html: output }}></p>
             </div>
           </div>
           <div>
