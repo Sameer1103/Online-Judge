@@ -65,6 +65,7 @@ const submitbtn = css`
 const ProblemPage = () => {
   const { id } = useParams();
   const [code, setCode] = useState("");
+  const [inputs, setInputs] = useState("");
   const [output, setOutput] = useState("");
   var diffcolor;
 
@@ -72,7 +73,7 @@ const ProblemPage = () => {
     const data = {
       language: "cpp",
       code: code,
-      inputs : [10,20],
+      inputs : inputs,
     };
     const response = await compileTheCode(data);
     if(response.success === false) alert(response.error);
@@ -142,7 +143,7 @@ const ProblemPage = () => {
           <div style={{ width: '60%' }}>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Input:</h3>
-              <textarea rows='5' cols='40' style={{ marginLeft: 10 }}></textarea>
+              <textarea rows='5' cols='40' style={{ marginLeft: 10 }} onChange={(e)=>setInputs(e.target.value)}></textarea>
             </div>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Output:</h3>

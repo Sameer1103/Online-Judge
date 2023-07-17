@@ -10,7 +10,7 @@ if (!fs.existsSync(outputPath)) {
 }
 
 const executeFile = async (filePath, inputs) => {
-    inputs = "10\r\n20";
+    
     fs.writeFileSync(path.join(outputPath, 'input.txt'), inputs, 'utf-8');
     const jobId = path.basename(filePath).split(".")[0];
     const outPath = path.join(outputPath, `${jobId}.exe`);
@@ -33,20 +33,20 @@ const executeFile = async (filePath, inputs) => {
                     console.log("Execution successful. Output:" + stdout);
                     resolve(stdout);
 
-                    fs.rm(outputPath, { recursive: true }, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('Output folder removed successfully');
-                    });
-                    fs.rm(filePath, { recursive: true }, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('Codes folder removed successfully');
-                    });
+                    // fs.rm(outputPath, { recursive: true }, (err) => {
+                    //     if (err) {
+                    //         console.error(err);
+                    //         return;
+                    //     }
+                    //     console.log('Output folder removed successfully');
+                    // });
+                    // fs.rm(filePath, { recursive: true }, (err) => {
+                    //     if (err) {
+                    //         console.error(err);
+                    //         return;
+                    //     }
+                    //     console.log('Codes folder removed successfully');
+                    // });
                 });
         }
         catch (err) {
