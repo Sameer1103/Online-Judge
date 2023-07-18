@@ -32,3 +32,13 @@ export const fetchSolArray = async (data) => {
         console.log("Error in calling fetch data API", error.message);
     }
 };
+
+export const fetchAllProblems = async () => {
+    try{
+        const response = await axios.post(`${API_URI}/fetchallproblems`);
+        return response.data;
+    }
+    catch(error){
+        console.log("Error in calling fetch problems API", error.message);
+    }
+};

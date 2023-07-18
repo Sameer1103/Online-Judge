@@ -3,6 +3,7 @@ import { addUser } from '../controller/profile-controller.js';
 import User from '../models/user.js';
 import { generateFile } from '../controller/file-controller.cjs';
 import { executeFile } from '../controller/executeFile.cjs';
+import Problem from '../models/problem.js';
 
 const router = express.Router();
 
@@ -66,6 +67,22 @@ router.post("/fetchdata", async (req, res) => {
         })
         .catch(err => {
             console.error('Error while fetching data from the database1:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        });
+});
+
+router.post("/fetchallproblems", async (req, res) => {
+    Problem.find()
+        .exec()
+        .then(problems => {
+            if (problems) {
+                return res.json(problems);
+            } else {
+                return res.status(404).json({ message: 'Problems not found' });
+            }
+        })
+        .catch(err => {
+            console.error('Error while fetching problems from the database1:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         });
 });

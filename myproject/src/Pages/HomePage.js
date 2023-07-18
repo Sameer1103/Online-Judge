@@ -3,7 +3,10 @@ import { Container, Table, TableBody, TableCell, TableContainer, TableHead, Tabl
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { UserState } from '../Context';
-import { fetchSolArray } from '../service/api';
+import { fetchAllProblems, fetchSolArray } from '../service/api';
+import file from '../Images/file-icon.png';
+import lock from '../Images/locked.png';
+import Solution from '../components/Solution';
 
 const rowclass = css`
   &:hover {
@@ -12,23 +15,17 @@ const rowclass = css`
   cursor: pointer;
   font-family: Montserrat;
 `
-var problems = [{
-  _id: "4",
-  title: "Prob 1",
-  difficulty: "Easy",
-},
-{
-  _id: "7",
-  title: "Prob 2",
-  difficulty: "Medium",
-}
-];
 
 const HomePage = () => {
 
   const [search, setSearch] = useState("");
   const [solutionsArr, setSolutionsArr] = useState([]);
-  const {useremail} = UserState();
+  const [problems, setProblems] = useState([]);
+  const { useremail } = UserState();
+  const [showSolution, setShowSolution] = useState(false);
+
+  const [open, setOpen] = React.useState(true);
+  const handleClose = () => setOpen(false);
 
   const navigate = useNavigate();
   var solved = false;
@@ -40,21 +37,33 @@ const HomePage = () => {
     ));
   }
 
-  const findArray = async(useremail) => {
+  const findArray = async (useremail) => {
     const data = {
       email: useremail
     };
     return await fetchSolArray(data);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
+    const fetchProblems = async () => {
+      const response = await fetchAllProblems();
+      setProblems(response);
+    };
+    fetchProblems();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       const solutions = await findArray(useremail);
       setSolutionsArr(solutions);
     };
     fetchData();
-  },[useremail]);
-  console.log(solutionsArr);
+  }, [useremail]);
+
+
+  const handleFileClick = () => {
+    setShowSolution(true);
+  };
 
   return (
     <Container style={{ textAlign: "center" }}>
@@ -83,27 +92,31 @@ const HomePage = () => {
 
           <TableBody>
             {handleSearch().map((row) => {
-              if(solutionsArr !== undefined) solved = solutionsArr.some(obj => obj.problem_id === row._id);
+              if (solutionsArr !== undefined) solved = solutionsArr.some(obj => obj.problem_id === row._id);
               mystatus = solved ? 'Solved' : 'Unsolved';
               return (
-                <TableRow onClick={() => navigate(`/problems/${row._id}`)}
+                <TableRow
                   className={rowclass}
                   key={row.title}
                 >
-                  <TableCell
+                  <TableCell onClick={() => navigate(`/problems/${row._id}`)}
                     component="th"
                     scope='row'
                     style={{ display: "flex", gap: 15 }}
                   >
                     {row.title}
                   </TableCell>
-                  <TableCell align="right">
-                    This{/* solution if user has done else lock */}
+                  <TableCell align="right" style={{ paddingBottom: 0, paddingTop: 0 }}>
+                    {
+                      solved ? <img src={file} alt='file-img' height='20px' width='20px' onClick={() => handleFileClick()}></img> :
+                        <img src={lock} alt='lock-img' height='20px' width='20px' style={{ cursor: 'default' }}></img>
+                    }
+                    {showSolution && <Solution content="This solution" open={open} onClose={handleClose} />}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" style={{ cursor: 'default' }}>
                     {row.difficulty}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" style={{ cursor: 'default' }}>
                     {mystatus}
                   </TableCell>
                 </TableRow>
