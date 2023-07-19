@@ -1,7 +1,8 @@
 import { css } from '@emotion/css';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { compileTheCode } from '../service/api';
+import { compileTheCode, fetchSpecificProblems } from '../service/api';
+import { UserState } from '../Context';
 
 const container = css`
   display: flex;
@@ -67,51 +68,147 @@ const ProblemPage = () => {
   const [code, setCode] = useState("");
   const [inputs, setInputs] = useState("");
   const [output, setOutput] = useState("");
+  const [problem, setProblem] = useState();
+  const [verdict, setVerdict] = useState();
+  const { useremail } = UserState();
   var diffcolor;
 
-  const handleClick = async() => {
+  const handleClick = async () => {
     const data = {
       language: "cpp",
       code: code,
-      inputs : inputs,
+      inputs: inputs,
     };
     const response = await compileTheCode(data);
-    if(response.success === false) alert(response.error);
-    else{
+    if (response.success === false) alert(response.error);
+    else {
       const formattedOutput = response.output.replace(/\r\n/g, '<br>');
       setOutput(formattedOutput);
     }
   };
 
-  const handleSubmit = async() => {
 
-  };
+  useEffect(() => {
+    const data = {
+      id: id,
+    };
+    const fetchProblem = async (data) => {
+      const response = await fetchSpecificProblems(data);
+      setProblem(response);
+    };
+    fetchProblem(data);
+  }, [id]);
 
-  var problem = {
-    title: "Longest Common Prefix",
-    difficulty: "Easy",
-    solution: ['public String longestCommonPrefix(String[] strs) {',
-      '    if (strs.length == 0) return "";',
-      '    String prefix = strs[0];',
-      '    for (int i = 1; i < strs.length; i++)',
-      '        while (strs[i].indexOf(prefix) != 0) {',
-      '            prefix = prefix.substring(0, prefix.length() - 1);',
-      '            if (prefix.isEmpty()) return "";',
-      '        }',
-      '    return prefix;',
-      '}'],
-      input_format: "This is my input format",
-      output_format: "This is my output format",
-    discription: {
-      statement: 'Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string "".',
-      constraints: ["1 <= strs.length <= 200", "0 <= strs[i].length <= 200", "strs[i] consists of only lowercase English letters."],
-      sampleio: [['strs = ["flower","flow","flight"]', '"fl"'], ['strs = ["dog","racecar","car"]', '""']]
-    }
-  };
+  if (problem === undefined) return <h1>404  Problem Not Found</h1>;
+
 
   if (problem.difficulty === "Easy") diffcolor = "#16FF00";
   else if (problem.difficulty === "Medium") diffcolor = "#F1C93B";
   else diffcolor = "#FE0000";
+
+  const handleSubmit = async () => {
+    let result = 1;
+    problem.discription.sampleio.forEach(async (samplearray) => {
+
+      const data = {
+        language: "cpp",
+        code: code,
+        inputs: samplearray[0],
+      };
+      const response = await compileTheCode(data);
+      if (response.success === false || response.output === "Error!") {
+        result = -1;
+      }
+      else {
+        const output = response.output;
+        if (output != samplearray[1]) result = 0;
+      }
+
+    });
+
+    if (result === 0) setVerdict("Wrong Answer!");
+    if (result === 1) setVerdict("Accepted!");
+    else setVerdict("Error!");
+  };
+
+  // const handleSubmit = async () => {
+  //   let result = 1;
+  //   for (const samplearray of problem.discription.sampleio) {
+  //     const data = {
+  //       language: "cpp",
+  //       code: code,
+  //       inputs: samplearray[0],
+  //     };
+  //     const response = await compileTheCode(data);
+  //     if (response.success === false || response.output === "Error!") {
+  //       result = -1;
+  //     } else {
+  //       const output = response.output;
+  //       if (JSON.stringify(output) !== JSON.stringify(samplearray[1])) {
+  //         result = 0;
+  //         console.log("output is ",Array.from(output).map(char => char.charCodeAt(0)));
+  //         console.log("required is ",Array.from(samplearray[1]).map(char => char.charCodeAt(0)));
+  //       }
+  //     }
+  //   }
+  
+  //   if (result === 0) setVerdict("Wrong Answer!");
+  //   else if (result === 1) setVerdict("Accepted!");
+  //   else setVerdict("Error!");
+  // };
+
+  // const handleSubmit = async () => {
+  //   let result = 1;
+  //   for (const samplearray of problem.discription.sampleio) {
+  //     const data = {
+  //       language: "cpp",
+  //       code: code,
+  //       inputs: samplearray[0],
+  //     };
+  //     const response = await compileTheCode(data);
+  //     if (response.success === false || response.output === "Error!") {
+  //       result = -1;
+  //     } else {
+  //       const output = response.output;
+  //       if (typeof output !== typeof samplearray[1]) {
+  //         // Convert output to the same type as samplearray[1] before comparing
+  //         if (typeof samplearray[1] === "number") {
+  //           if (parseFloat(output) !== samplearray[1]) result = 0;
+  //         } else if (typeof samplearray[1] === "string") {
+  //           if (output.toString() !== samplearray[1]) result = 0;
+  //         } else {
+  //           // Handle other data types as needed
+  //           result = 0;
+  //         }
+  //       } else if (output !== samplearray[1]) {
+  //         result = 0;
+  //       }
+  //     }
+  //   }
+  
+  //   if (result === 0) setVerdict("Wrong Answer!");
+  //   else if (result === 1) setVerdict("Accepted!");
+  //   else setVerdict("Error!");
+  // };
+  
+  
+
+  // const formattedSamples = problem.discription.sampleio.map((samplearray, index) => {
+  //   const formattedInput = samplearray[0].replace(/\r\n/g, '<br>');
+  //   const formattedOutput = samplearray[1].replace(/\r\n/g, '<br>');
+
+  //   console.log(formattedInput);
+  //   console.log(formattedOutput);
+
+  //   return (
+  //     <React.Fragment key={index}>
+  //       <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
+  //       <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedInput }}></p>
+  //       <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
+  //       <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedOutput }}></p>
+  //     </React.Fragment>
+  //   );
+  // });
 
   return (
     <div className={container}>
@@ -120,30 +217,34 @@ const ProblemPage = () => {
         <h4 style={{ marginTop: 1, color: `${diffcolor}` }}>{problem.difficulty}</h4>
         <p style={{ fontFamily: "Montserrat", fontSize: 19 }}>{problem.discription.statement}</p>
         <h3 style={{ fontFamily: "Montserrat" }}>Input Format:</h3>
-        <p style={{ marginTop: 1 }}>{problem.input_format}</p>
+        <p style={{ marginTop: 1 }}>{problem.discription.input_format}</p>
         <h3 style={{ fontFamily: "Montserrat" }}>Output Format:</h3>
-        <p style={{ marginTop: 1 }}>{problem.output_format}</p>
+        <p style={{ marginTop: 1 }}>{problem.discription.output_format}</p>
         {problem.discription.sampleio.map((samplearray, index) => {
-          return (
-            <>
-              <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
-              <p style={{ marginTop: 1 }}>{samplearray[0]}</p>
-              <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
-              <p style={{ marginTop: 1 }}>{samplearray[1]}</p>
-            </>
-          );
+          const formattedInput = samplearray[0].replace(/\r\n/g, '<br/>');
+          const formattedOutput = samplearray[1].replace(/\r\n/g, '<br/>');
+
+          console.log(formattedInput);
+          console.log(formattedOutput);
+
+          return <>
+            <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
+            <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedInput }}></p>
+            <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
+            <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedOutput }}></p>
+          </>;
         })}
         <h3 style={{ fontFamily: "Montserrat" }}>Constraints: </h3>
         {problem.discription.constraints.map((constraint => <p style={{ marginTop: 1 }}>{constraint}</p>))}
       </div>
 
       <div className={compiler}>
-        <textarea rows='30' cols='90' style={{ marginBottom: 20 }} onChange={(e)=>setCode(e.target.value)}></textarea>
+        <textarea rows='30' cols='90' style={{ marginBottom: 20 }} onChange={(e) => setCode(e.target.value)}></textarea>
         <div style={{ display: 'flex' }}>
           <div style={{ width: '60%' }}>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Input:</h3>
-              <textarea rows='5' cols='40' style={{ marginLeft: 10 }} onChange={(e)=>setInputs(e.target.value)}></textarea>
+              <textarea rows='5' cols='40' style={{ marginLeft: 10 }} onChange={(e) => setInputs(e.target.value)}></textarea>
             </div>
             <div style={{ display: 'flex' }}>
               <h3 style={{ fontFamily: "Montserrat" }}>Output:</h3>
@@ -151,9 +252,13 @@ const ProblemPage = () => {
             </div>
           </div>
           <div>
-            <div style={{ display: 'flex' }}>
-              <button className={runbtn} onClick={handleClick}>Run</button>
-              <button className={submitbtn} onClick={handleSubmit}>Submit</button>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex' }}>
+                <button className={runbtn} onClick={handleClick}>Run</button>
+                <button className={submitbtn} onClick={handleSubmit}>Submit</button>
+              </div>
+              {verdict && <><h3>Verdict: </h3>
+              <h3 style={{color: verdict === "Accepted!" ? 'green' : 'red'}}>{verdict}</h3></>}
             </div>
           </div>
         </div>

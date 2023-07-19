@@ -19,6 +19,8 @@ const Solution = (props) => {
         props.onClose();
     };
 
+    const content = props.content.replace(/\r\n/g, '<br>');
+
     return (
         <Modal
             open={props.open}
@@ -27,7 +29,7 @@ const Solution = (props) => {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                    <p>{props.content}</p>
+                    {content}
             </Box>
         </Modal>
     )

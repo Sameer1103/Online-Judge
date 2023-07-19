@@ -33,6 +33,7 @@ const login = css`
     height: 40px;
     display: flex;
     margin-right: 10%;
+    cursor: pointer;
     @media(max-width: 490px){
         margin-right: 1%;
     }

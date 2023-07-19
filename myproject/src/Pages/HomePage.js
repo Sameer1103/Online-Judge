@@ -22,9 +22,9 @@ const HomePage = () => {
   const [solutionsArr, setSolutionsArr] = useState([]);
   const [problems, setProblems] = useState([]);
   const { useremail } = UserState();
-  const [showSolution, setShowSolution] = useState(false);
 
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const HomePage = () => {
 
 
   const handleFileClick = () => {
-    setShowSolution(true);
+    handleOpen();
   };
 
   return (
@@ -94,6 +94,7 @@ const HomePage = () => {
             {handleSearch().map((row) => {
               if (solutionsArr !== undefined) solved = solutionsArr.some(obj => obj.problem_id === row._id);
               mystatus = solved ? 'Solved' : 'Unsolved';
+
               return (
                 <TableRow
                   className={rowclass}
@@ -111,7 +112,7 @@ const HomePage = () => {
                       solved ? <img src={file} alt='file-img' height='20px' width='20px' onClick={() => handleFileClick()}></img> :
                         <img src={lock} alt='lock-img' height='20px' width='20px' style={{ cursor: 'default' }}></img>
                     }
-                    {showSolution && <Solution content="This solution" open={open} onClose={handleClose} />}
+                    <Solution content={row.solution} open={open} onClose={handleClose} />
                   </TableCell>
                   <TableCell align="right" style={{ cursor: 'default' }}>
                     {row.difficulty}

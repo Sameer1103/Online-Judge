@@ -42,3 +42,13 @@ export const fetchAllProblems = async () => {
         console.log("Error in calling fetch problems API", error.message);
     }
 };
+
+export const fetchSpecificProblems = async (data) => {
+    try{
+        const response = await axios.post(`${API_URI}/fetchproblem`, data);
+        return response.data;
+    }
+    catch(error){
+        console.log("Error in calling fetch problem API", error.message);
+    }
+};

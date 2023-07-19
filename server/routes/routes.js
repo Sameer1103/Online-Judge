@@ -32,7 +32,7 @@ router.post('/signup', (req, res) => {
             }
         })
         .catch(err => {
-            console.error('Error while querying the database1:', err);
+            console.error('Error while querying the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         });
 });
@@ -66,7 +66,7 @@ router.post("/fetchdata", async (req, res) => {
 
         })
         .catch(err => {
-            console.error('Error while fetching data from the database1:', err);
+            console.error('Error while fetching data from the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         });
 });
@@ -82,7 +82,24 @@ router.post("/fetchallproblems", async (req, res) => {
             }
         })
         .catch(err => {
-            console.error('Error while fetching problems from the database1:', err);
+            console.error('Error while fetching problems from the database:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        });
+});
+
+router.post("/fetchproblem", async (req, res) => {
+    const data = req.body;
+    Problem.findOne({_id: data.id})
+        .exec()
+        .then(problem => {
+            if (problem) {
+                return res.json(problem);
+            } else {
+                return res.status(404).json({ message: 'Problem not found' });
+            }
+        })
+        .catch(err => {
+            console.error('Error while fetching problem from the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         });
 });
