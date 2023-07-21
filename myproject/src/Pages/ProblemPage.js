@@ -1,7 +1,8 @@
 import { css } from '@emotion/css';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { compileTheCode, fetchSpecificProblems } from '../service/api';
+import CircularProgress from '@mui/material/CircularProgress';
+import { addSolution, compileTheCode, fetchSpecificProblems } from '../service/api';
 import { UserState } from '../Context';
 
 const container = css`
@@ -70,6 +71,7 @@ const ProblemPage = () => {
   const [output, setOutput] = useState("");
   const [problem, setProblem] = useState();
   const [verdict, setVerdict] = useState();
+  const [flag, setFlag] = useState(0);
   const { useremail } = UserState();
   var diffcolor;
 
@@ -99,7 +101,7 @@ const ProblemPage = () => {
     fetchProblem(data);
   }, [id]);
 
-  if (problem === undefined) return <h1>404  Problem Not Found</h1>;
+  if (problem === undefined) return <CircularProgress style={{ color: "blue" }} size={200} thickness={1} />;
 
 
   if (problem.difficulty === "Easy") diffcolor = "#16FF00";
@@ -108,8 +110,9 @@ const ProblemPage = () => {
 
   const handleSubmit = async () => {
     let result = 1;
-    problem.discription.sampleio.forEach(async (samplearray) => {
-
+    setFlag(1);
+    setVerdict();
+    for (const samplearray of problem.testcases) {
       const data = {
         language: "cpp",
         code: code,
@@ -118,97 +121,59 @@ const ProblemPage = () => {
       const response = await compileTheCode(data);
       if (response.success === false || response.output === "Error!") {
         result = -1;
+      } else {
+        const output = response.output.replace(/[\n\r]/g, '').trim();
+        samplearray[1] = samplearray[1].replace(/[\n\r]/g, '').trim();
+        if (output !== samplearray[1]) {
+          result = 0;
+          console.log("output is " + output);
+          console.log("required is " + samplearray[1]);
+        }
       }
-      else {
-        const output = response.output;
-        if (output != samplearray[1]) result = 0;
-      }
-
-    });
+    }
 
     if (result === 0) setVerdict("Wrong Answer!");
-    if (result === 1) setVerdict("Accepted!");
+    else if (result === 1){
+      setVerdict("Accepted!");
+      if(useremail === undefined) alert('You need to Login to save your progress.');
+      else{
+        const data = {
+          email: useremail,
+          id: problem._id,
+          solution: code
+        };
+        const response = addSolution(data);
+        console.log(response);
+      }
+    }
     else setVerdict("Error!");
   };
 
-  // const handleSubmit = async () => {
-  //   let result = 1;
-  //   for (const samplearray of problem.discription.sampleio) {
-  //     const data = {
-  //       language: "cpp",
-  //       code: code,
-  //       inputs: samplearray[0],
-  //     };
-  //     const response = await compileTheCode(data);
-  //     if (response.success === false || response.output === "Error!") {
-  //       result = -1;
-  //     } else {
-  //       const output = response.output;
-  //       if (JSON.stringify(output) !== JSON.stringify(samplearray[1])) {
-  //         result = 0;
-  //         console.log("output is ",Array.from(output).map(char => char.charCodeAt(0)));
-  //         console.log("required is ",Array.from(samplearray[1]).map(char => char.charCodeAt(0)));
-  //       }
-  //     }
-  //   }
-  
-  //   if (result === 0) setVerdict("Wrong Answer!");
-  //   else if (result === 1) setVerdict("Accepted!");
-  //   else setVerdict("Error!");
-  // };
 
-  // const handleSubmit = async () => {
-  //   let result = 1;
-  //   for (const samplearray of problem.discription.sampleio) {
-  //     const data = {
-  //       language: "cpp",
-  //       code: code,
-  //       inputs: samplearray[0],
-  //     };
-  //     const response = await compileTheCode(data);
-  //     if (response.success === false || response.output === "Error!") {
-  //       result = -1;
-  //     } else {
-  //       const output = response.output;
-  //       if (typeof output !== typeof samplearray[1]) {
-  //         // Convert output to the same type as samplearray[1] before comparing
-  //         if (typeof samplearray[1] === "number") {
-  //           if (parseFloat(output) !== samplearray[1]) result = 0;
-  //         } else if (typeof samplearray[1] === "string") {
-  //           if (output.toString() !== samplearray[1]) result = 0;
-  //         } else {
-  //           // Handle other data types as needed
-  //           result = 0;
-  //         }
-  //       } else if (output !== samplearray[1]) {
-  //         result = 0;
-  //       }
-  //     }
-  //   }
-  
-  //   if (result === 0) setVerdict("Wrong Answer!");
-  //   else if (result === 1) setVerdict("Accepted!");
-  //   else setVerdict("Error!");
-  // };
-  
-  
+  const formattedSamples = problem.discription.sampleio.map((samplearray, index) => {
+    const formattedInput = samplearray[0].split('\n');
+    const formattedOutput = samplearray[1].split('\n');
 
-  // const formattedSamples = problem.discription.sampleio.map((samplearray, index) => {
-  //   const formattedInput = samplearray[0].replace(/\r\n/g, '<br>');
-  //   const formattedOutput = samplearray[1].replace(/\r\n/g, '<br>');
-
-  //   console.log(formattedInput);
-  //   console.log(formattedOutput);
-
-  //   return (
-  //     <React.Fragment key={index}>
-  //       <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
-  //       <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedInput }}></p>
-  //       <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
-  //       <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedOutput }}></p>
-  //     </React.Fragment>
-  //   );
-  // });
+    return (
+      <React.Fragment key={index}>
+        <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
+        {formattedInput.map((line, index) => (
+          <div key={index}>
+            {line}
+            <br />
+          </div>
+        ))}
+        <p style={{ marginTop: 1 }}></p>
+        <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
+        {formattedOutput.map((line, index) => (
+          <div key={index}>
+            {line}
+            <br />
+          </div>
+        ))}
+      </React.Fragment>
+    );
+  });
 
   return (
     <div className={container}>
@@ -220,20 +185,7 @@ const ProblemPage = () => {
         <p style={{ marginTop: 1 }}>{problem.discription.input_format}</p>
         <h3 style={{ fontFamily: "Montserrat" }}>Output Format:</h3>
         <p style={{ marginTop: 1 }}>{problem.discription.output_format}</p>
-        {problem.discription.sampleio.map((samplearray, index) => {
-          const formattedInput = samplearray[0].replace(/\r\n/g, '<br/>');
-          const formattedOutput = samplearray[1].replace(/\r\n/g, '<br/>');
-
-          console.log(formattedInput);
-          console.log(formattedOutput);
-
-          return <>
-            <h3 style={{ fontFamily: "Montserrat" }}>Sample Input {index + 1}: </h3>
-            <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedInput }}></p>
-            <h3 style={{ fontFamily: "Montserrat" }}>Sample Output {index + 1}: </h3>
-            <p style={{ marginTop: 1 }} dangerouslySetInnerHTML={{ __html: formattedOutput }}></p>
-          </>;
-        })}
+        {formattedSamples}
         <h3 style={{ fontFamily: "Montserrat" }}>Constraints: </h3>
         {problem.discription.constraints.map((constraint => <p style={{ marginTop: 1 }}>{constraint}</p>))}
       </div>
@@ -257,8 +209,10 @@ const ProblemPage = () => {
                 <button className={runbtn} onClick={handleClick}>Run</button>
                 <button className={submitbtn} onClick={handleSubmit}>Submit</button>
               </div>
-              {verdict && <><h3>Verdict: </h3>
-              <h3 style={{color: verdict === "Accepted!" ? 'green' : 'red'}}>{verdict}</h3></>}
+              {verdict ? <><h3>Verdict: </h3>
+                <h3 style={{ color: verdict === "Accepted!" ? 'green' : 'red' }}>{verdict}</h3></>
+                : (flag === 1) && <CircularProgress style={{ color: "blue", marginTop: 50 }} size={50} thickness={1} />
+              }
             </div>
           </div>
         </div>

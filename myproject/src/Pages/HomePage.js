@@ -23,6 +23,7 @@ const HomePage = () => {
   const [problems, setProblems] = useState([]);
   const { useremail } = UserState();
 
+  const [selectedRowId, setSelectedRowId] = useState();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -60,8 +61,8 @@ const HomePage = () => {
     fetchData();
   }, [useremail]);
 
-
-  const handleFileClick = () => {
+  const handleRowClick = (rowId) => {
+    setSelectedRowId(rowId);
     handleOpen();
   };
 
@@ -109,10 +110,10 @@ const HomePage = () => {
                   </TableCell>
                   <TableCell align="right" style={{ paddingBottom: 0, paddingTop: 0 }}>
                     {
-                      solved ? <img src={file} alt='file-img' height='20px' width='20px' onClick={() => handleFileClick()}></img> :
+                      solved ? <img src={file} alt='file-img' height='20px' width='20px' onClick={() => handleRowClick(row._id)}></img> :
                         <img src={lock} alt='lock-img' height='20px' width='20px' style={{ cursor: 'default' }}></img>
                     }
-                    <Solution content={row.solution} open={open} onClose={handleClose} />
+                    {(row._id === selectedRowId) &&<Solution content={row.solution} open={open} onClose={handleClose} />}
                   </TableCell>
                   <TableCell align="right" style={{ cursor: 'default' }}>
                     {row.difficulty}

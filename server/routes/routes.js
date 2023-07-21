@@ -89,7 +89,7 @@ router.post("/fetchallproblems", async (req, res) => {
 
 router.post("/fetchproblem", async (req, res) => {
     const data = req.body;
-    Problem.findOne({_id: data.id})
+    Problem.findOne({ _id: data.id })
         .exec()
         .then(problem => {
             if (problem) {
@@ -100,6 +100,34 @@ router.post("/fetchproblem", async (req, res) => {
         })
         .catch(err => {
             console.error('Error while fetching problem from the database:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        });
+});
+
+router.post("/addsolution", async (req, res) => {
+    const data = req.body;
+    User.findOne({ email: data.email })
+        .then(user => {
+            if (user) {
+                user.solutions.push({
+                    problem_id: data.id,
+                    solution: data.solution
+                });
+
+                user.save()
+                    .then(() => {
+                        return res.status(200).json({ message: 'Solution added successfully' });
+                    })
+                    .catch(err => {
+                        console.error('Error while saving user:', err);
+                        return res.status(500).json({ message: 'Internal Server Error' });
+                    });
+            } else {
+                return res.status(404).json({ message: 'User not found' });
+            }
+        })
+        .catch(err => {
+            console.error('Error while finding user from the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         });
 });

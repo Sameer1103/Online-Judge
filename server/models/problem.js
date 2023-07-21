@@ -10,12 +10,6 @@ const problemSchema = new mongoose.Schema({
     solution: {
         type: String
     },
-    input_format: {
-        type: String
-    },
-    output_format: {
-        type: String
-    },
     description: {
         type: Object,
         statement: {
@@ -26,7 +20,16 @@ const problemSchema = new mongoose.Schema({
         },
         sampleio: {
             type: [[String]]
-        }
+        },
+        input_format: {
+            type: String
+        },
+        output_format: {
+            type: String
+        },
+    },
+    testcases: {
+        type: [[String]]
     }
 });
 

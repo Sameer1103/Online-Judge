@@ -19,8 +19,7 @@ const Solution = (props) => {
         props.onClose();
     };
 
-    const content = props.content.replace(/\r\n/g, '<br>');
-
+    const contentLines = props.content.split('\n');
     return (
         <Modal
             open={props.open}
@@ -29,7 +28,12 @@ const Solution = (props) => {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                    {content}
+                {contentLines.map((line, index) => (
+                    <div key={index}>
+                        {line}
+                        <br />
+                    </div>
+                ))}
             </Box>
         </Modal>
     )
