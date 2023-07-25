@@ -1,12 +1,13 @@
 import User from "../models/user.js";
 
-export const addUser = async (req,res) => {
+export const addUser = async (req, res) => {
     try {
-        const data = req.body;
+        const data = req;
         const user = new User({
             email: data.email,
             password: data.password
         });
+        user.refreshTokens.push(data.refreshToken);
         user.save();
         console.log("User added successfully");
     }

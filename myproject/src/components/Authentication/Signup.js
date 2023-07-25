@@ -7,7 +7,7 @@ const Signup = ({ handleClose }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmpassword, setConfirmPassword] = useState("");
-    const {setUserEmail} = UserState();
+    const { setUserEmail } = UserState();
 
     var validateEmail = function (email) {
         var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -21,13 +21,13 @@ const Signup = ({ handleClose }) => {
                 password: password,
             };
             const response = await saveProfileInfo(data);
-            if(response.exists){
-                alert("Welcome "+ email);
-                setUserEmail(email);
-            }
-            else alert("Invalid email-Id and/or password");
+            alert("Welcome " + email);
+            setUserEmail(email);
+            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('refreshToken', response.refreshToken);
+            localStorage.setItem('accessTokenExpire', Date.now() + 14 * 60 * 1000);
         }
-        else{
+        else {
             alert("Invalid email-Id and/or password");
         }
         handleClose();

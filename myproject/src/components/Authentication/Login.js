@@ -1,12 +1,12 @@
 import { Box, Button, TextField } from '@mui/material';
 import React, { useState } from 'react'
-import { saveProfileInfo } from '../../service/api';
+import { checkProfileInfo } from '../../service/api';
 import { UserState } from '../../Context';
 
 const Login = ({ handleClose }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const {setUserEmail} = UserState();
+    const { setUserEmail } = UserState();
 
     var validateEmail = function (email) {
         var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -19,12 +19,19 @@ const Login = ({ handleClose }) => {
                 email: email,
                 password: password,
             };
-            const response = await saveProfileInfo(data);
-            if(response.exists){
-                alert("Welcome "+ email);
-                setUserEmail(email);
+            const response = await checkProfileInfo(data);
+            console.log(response);
+            if (response.success) {
+                if (response.exists) {
+                    alert("Welcome " + email);
+                    setUserEmail(email);
+                    localStorage.setItem('accessToken', response.accessToken);
+                    localStorage.setItem('refreshToken', response.refreshToken);
+                    localStorage.setItem('accessTokenExpire', Date.now() + 14 * 60 * 1000);
+                }
+                else alert("Invalid email-Id and/or password");
             }
-            else alert("Invalid email-Id and/or password");
+            else alert('This email is not recognised');
         }
         else {
             alert("Invalid email-Id and/or password");

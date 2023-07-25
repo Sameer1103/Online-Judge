@@ -2,6 +2,16 @@ import axios from "axios";
 
 const API_URI = 'http://localhost:8000';
 
+export const authenticate = async (data) => {
+    try {
+        const response = await axios.post(`${API_URI}/authenticate`, data);
+        return response.data;
+    }
+    catch (error) {
+        console.log("Error in calling authenticate API", error.message);
+    }
+};
+
 export const saveProfileInfo = async (data) => {
     try {
         const response = await axios.post(`${API_URI}/signup`, data);
@@ -9,6 +19,16 @@ export const saveProfileInfo = async (data) => {
     }
     catch (error) {
         console.log("Error in calling signup API", error.message);
+    }
+};
+
+export const checkProfileInfo = async (data) => {
+    try {
+        const response = await axios.post(`${API_URI}/login`, data);
+        return response.data;
+    }
+    catch (error) {
+        console.log("Error in calling login API", error.message);
     }
 };
 
