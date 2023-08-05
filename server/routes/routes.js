@@ -5,8 +5,9 @@ import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 import Problem from '../models/problem.js';
 import { addUser } from '../controller/profile-controller.js';
-import { generateFile } from '../controller/file-controller.cjs';
-import { executeFile } from '../controller/executeFile.cjs';
+import generateFile from '../controller/file-controller.js';
+import executeFile from '../controller/executeFile.js';
+
 
 dotenv.config();
 const router = express.Router();
