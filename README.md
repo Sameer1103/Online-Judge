@@ -6,10 +6,10 @@ The aim of this project is to build an Online Judge that remotely runs code secu
 
 ### Functional Requirements
 
-1. **Authentication and authorization of users**
-2. **Search Problems based on problem name**
-3. **Submit code and receive verdict**
-4. **Save the solution of the user**
+1. Authentication and authorization of users
+2. Search Problems based on problem name
+3. Submit code and receive verdict
+4. Save the solution of the user
 
 ### Database Structure
 
